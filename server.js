@@ -13,7 +13,7 @@ import yargs from "yargs";
 const argv = yargs(process.argv)
   .options({
     port: {
-      default: 8080,
+      default: 8089,
       description: "Port to listen on.",
     },
     public: {
@@ -487,7 +487,7 @@ const serveResult = (result, fileName, res, next) => {
 
   const server = app.listen(
     argv.port,
-    argv.public ? undefined : "localhost",
+    argv.public ? "0.0.0.0" : "localhost",
     function () {
       if (argv.public) {
         console.log(

@@ -7,8 +7,8 @@
             "name": "Launch Server",
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "start"],
-            "noDebug": true,
+            "runtimeArgs": ["run-script", "build"],
+            "noDebug": false,
             "serverReadyAction":{
                 "action": "startDebugging",
                 "name": "Launch in Chrome",

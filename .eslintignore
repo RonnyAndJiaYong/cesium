@@ -1,5 +1,7 @@
 Apps/HelloWorld.html
 Apps/Sandcastle/ThirdParty/**
+Apps/FlyDemo/**
+
 Build/**
 Documentation/**
 Source/**
@@ -11,7 +13,7 @@ Apps/Sandcastle/gallery/gallery-index.js
 index.html
 index.release.html
 
-
+build copy.js
 # packages/engine
 packages/engine/Build/**
 packages/engine/Source/Scene/GltfPipeline/**

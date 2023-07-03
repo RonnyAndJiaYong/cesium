@@ -1067,23 +1067,6 @@ export const buildWidgets = async (options) => {
 };
 
 /**
- * 打包extend workspace下的功能.
- *
- * @param {object} options
- * @param {boolean} [options.incremental=false] True if builds should be generated incrementally.
- * @param {boolean} [options.write=true] True if bundles generated are written to files instead of in-memory buffers.
- */
-export const buildExtend = async (options) => {
-  options = options || {};
-  // 暂时不考虑单元测试 所以不打包测试相关文件
-  console.log("options", options);
-  // const incremental = options.incremental ?? false;
-  // const write = options.write ?? true;
-
-  // Create index.js
-  await createIndexJs("extend");
-};
-/**
  * Build CesiumJS.
  *
  * @param {object} options

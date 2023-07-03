@@ -670,6 +670,7 @@ function Scene(options) {
 
   this._picking = new Picking(this);
   this._defaultView = new View(this, camera, viewport);
+
   this._view = this._defaultView;
 
   this._hdr = undefined;
@@ -1851,7 +1852,6 @@ function updateFrameNumber(scene, frameNumber, time) {
  */
 Scene.prototype.updateFrameState = function () {
   const camera = this.camera;
-
   const frameState = this._frameState;
   frameState.commandList.length = 0;
   frameState.shadowMaps.length = 0;
@@ -1873,8 +1873,8 @@ Scene.prototype.updateFrameState = function () {
   frameState.useLogDepth =
     this._logDepthBuffer &&
     !(
-      this.camera.frustum instanceof OrthographicFrustum ||
-      this.camera.frustum instanceof OrthographicOffCenterFrustum
+      camera.frustum instanceof OrthographicFrustum ||
+      camera.frustum instanceof OrthographicOffCenterFrustum
     );
   frameState.light = this.light;
   frameState.cameraUnderground = this._cameraUnderground;
@@ -3694,7 +3694,6 @@ const scratchBackgroundColor = new Color();
 
 function render(scene) {
   const frameState = scene._frameState;
-
   const context = scene.context;
   const us = context.uniformState;
 

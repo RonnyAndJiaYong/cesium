@@ -1,0 +1,11 @@
+{
+  "name": "@cesium/extend",
+  "version": "1.0.0",
+  "description": "Customized cesium scalability",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ronny",
+  "license": "ISC"
+}

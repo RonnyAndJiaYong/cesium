@@ -16,7 +16,7 @@ import createRoute from "./scripts/createRoute.js";
 const argv = yargs(process.argv)
   .options({
     port: {
-      default: 8080,
+      default: 8089,
       description: "Port to listen on.",
     },
     public: {
@@ -367,7 +367,7 @@ async function generateDevelopmentBuild() {
 
   const server = app.listen(
     argv.port,
-    argv.public ? undefined : "localhost",
+    argv.public ? "0.0.0.0" : "localhost",
     function () {
       if (argv.public) {
         console.log(

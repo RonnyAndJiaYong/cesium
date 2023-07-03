@@ -23,12 +23,92 @@
         padding: 0;
         overflow: hidden;
       }
+      .video1 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 99999;
+      }
     </style>
   </head>
   <body>
     <div id="cesiumContainer"></div>
+    <div class="video1">
+      <video
+        width="320"
+        height="240"
+        controls
+        autoplay
+        @pause="pause"
+        @play="play"
+        id="trailer"
+        crossorigin=""
+      >
+        <source
+          src="http://172.16.115.83:3839/api/video/6.mp4"
+          type="video/mp4"
+        />
+        您的浏览器不支持Video标签。
+      </video>
+    </div>
     <script>
       const viewer = new Cesium.Viewer("cesiumContainer");
+
+      // 定义矩形宽度和高度
+      const width = 256.0;
+      const height = 144.0;
+      // 创建矩形实体
+      const rectangle = getRecBypoint(
+        new Cesium.Cartesian3(
+          -2331429.804452902,
+          5383058.464155658,
+          2495349.6435902063
+        ),
+        width,
+        height
+      );
+      setTimeout(() => {
+        let videoPolygon = viewer.entities.add({
+          name: "videoPolygon",
+          rectangle: {
+            coordinates: rectangle,
+            material: document.getElementById("trailer"),
+            classificationType: Cesium.ClassificationType.TERRAIN,
+          },
+        });
+        viewer.flyTo(videoPolygon);
+      });
+
+      function getRecBypoint(center, width, height) {
+        const centerCartographic = Cesium.Cartographic.fromCartesian(center);
+
+        // 获取中心点的经度和纬度
+        const centerLongitude = Cesium.Math.toDegrees(
+          centerCartographic.longitude
+        );
+        const centerLatitude = Cesium.Math.toDegrees(
+          centerCartographic.latitude
+        );
+
+        // 计算矩形四个角的经纬度
+        const southWestLongitude =
+          centerLongitude -
+          width / 2.0 / 111319.9 / Math.cos((centerLatitude * Math.PI) / 180.0);
+        const southWestLatitude = centerLatitude - height / 2.0 / 111319.9;
+        const northEastLongitude =
+          centerLongitude +
+          width / 2.0 / 111319.9 / Math.cos((centerLatitude * Math.PI) / 180.0);
+        const northEastLatitude = centerLatitude + height / 2.0 / 111319.9;
+
+        // 创建矩形实体
+        const rectangle = Cesium.Rectangle.fromDegrees(
+          southWestLongitude,
+          southWestLatitude,
+          northEastLongitude,
+          northEastLatitude
+        );
+        return rectangle;
+      }
     </script>
   </body>
 </html>

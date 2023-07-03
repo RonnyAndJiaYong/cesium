@@ -42,6 +42,7 @@ import {
   buildCesium,
   buildEngine,
   buildWidgets,
+  buildExtend,
   bundleWorkers,
   glslToJavaScript,
   createCombinedSpecList,
@@ -151,10 +152,13 @@ export async function build() {
     return buildEngine(buildOptions);
   } else if (workspace === `@${scope}/widgets`) {
     return buildWidgets(buildOptions);
+  } else if (workspace === `@${scope}/extend`) {
+    return buildExtend(buildOptions);
   }
 
   await buildEngine(buildOptions);
   await buildWidgets(buildOptions);
+  await buildExtend(buildOptions);
   await buildCesium(buildOptions);
 }
 export default build;

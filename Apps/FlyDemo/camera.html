@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>Hello World!</title>
+    <script src="../Build/CesiumUnminified/Cesium.js"></script>
+    <script src="./dat.gui.min.js"></script>
+
+    <style>
+      @import url(../Build/CesiumUnminified/Widgets/widgets.css);
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div></div>
+    <div id="cesiumContainer"></div>
+    <script>
+      const viewer = new Cesium.Viewer("cesiumContainer", {
+        animation: false,
+        timeline: false,
+        fullscreenButton: false,
+        geocoder: false,
+        homeButton: false,
+        navigationHelpButton: false,
+        sceneModePicker: false,
+        baseLayerPicker: false,
+        creditContainer: document.createElement("div"),
+      });
+      const scene = viewer.scene;
+      viewer.scene.globe.depthTestAgainstTerrain = true;
+
+      const initialPosition = Cesium.Cartesian3.fromDegrees(
+        -74.01881302800248,
+        40.69114333714821,
+        753
+      );
+      const initialOrientation = new Cesium.HeadingPitchRoll.fromDegrees(
+        21.27879878293835,
+        -21.34390550872461,
+        0.0716951918898415
+      );
+      viewer.scene.camera.setView({
+        destination: initialPosition,
+        orientation: initialOrientation,
+        endTransform: Cesium.Matrix4.IDENTITY,
+      });
+
+      const tileset = new Cesium.Cesium3DTileset({
+        url: Cesium.IonResource.fromAssetId(75343),
+      });
+      viewer.scene.primitives.add(tileset);
+
+      const gui = new dat.GUI();
+      const videoGUI = gui.addFolder("视频翻转");
+      videoGUI.open();
+      const videoGUIParams = {
+        翻转: false,
+      };
+      videoGUI.add(videoGUIParams, "翻转").onChange(() => {
+        const obj = viewer.scene.pickFromRay(ray1);
+        drawPoint([obj.position]);
+      });
+
+      window.offCamera = new Cesium.Camera(scene);
+      offCamera.position = initialPosition;
+      offCamera.direction = Cesium.Cartesian3.negate(
+        Cesium.Cartesian3.UNIT_Z,
+        new Cesium.Cartesian3()
+      );
+      offCamera.up = Cesium.Cartesian3.clone(Cesium.Cartesian3.UNIT_Y);
+      offCamera.frustum.fov = Cesium.Math.PI_OVER_THREE;
+      offCamera.frustum.near = 1.0;
+      offCamera.frustum.far = 2.0;
+      let outlineGeometry;
+      let ray1;
+      addFrustum(viewer.scene.camera);
+      function addFrustum(camera) {
+        const scratchOrientation = new Cesium.Quaternion();
+        const scratchRight = new Cesium.Cartesian3();
+        const scratchRotation = new Cesium.Matrix3();
+        const scratchPerspective = new Cesium.PerspectiveFrustum();
+
+        const position = camera.positionWC;
+        const direction = camera.directionWC;
+        const up = camera.upWC;
+        let right = camera.rightWC;
+        right = Cesium.Cartesian3.negate(right, scratchRight);
+
+        const rotation = scratchRotation;
+        Cesium.Matrix3.setColumn(rotation, 0, right, rotation);
+        Cesium.Matrix3.setColumn(rotation, 1, up, rotation);
+        Cesium.Matrix3.setColumn(rotation, 2, direction, rotation);
+
+        const frustum = camera.frustum.clone(scratchPerspective);
+        frustum.near = 10.0;
+
+        const orientation = Cesium.Quaternion.fromRotationMatrix(
+          rotation,
+          scratchOrientation
+        );
+        let Geometry = new Cesium.FrustumGeometry({
+          origin: position,
+          orientation: orientation,
+          frustum: frustum,
+          _drawNearPlane: true,
+        });
+        let frunstumPrimitive = new Cesium.Primitive({
+          geometryInstances: new Cesium.GeometryInstance({
+            geometry: Geometry,
+            attributes: {
+              color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                Cesium.Color.fromAlpha(Cesium.Color.CYAN, 0.1)
+              ),
+            },
+          }),
+          appearance: new Cesium.PerInstanceColorAppearance({
+            translucent: true,
+            flat: true,
+          }),
+          asynchronous: false,
+          compressVertices: false,
+          releaseGeometryInstances: false,
+        });
+        outlineGeometry = Cesium.FrustumOutlineGeometry.createGeometry(
+          Geometry
+        );
+        console.log("outlineGeometry", outlineGeometry);
+        const outlinePrimitives = new Cesium.Primitive({
+          geometryInstances: new Cesium.GeometryInstance({
+            geometry: outlineGeometry,
+            attributes: {
+              color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                Cesium.Color.CYAN
+              ),
+            },
+            id: this.id,
+            pickPrimitive: this,
+          }),
+          appearance: new Cesium.PerInstanceColorAppearance({
+            translucent: false,
+            flat: true,
+          }),
+          asynchronous: false,
+        });
+
+        viewer.scene.primitives.add(frunstumPrimitive);
+
+        viewer.scene.primitives.add(outlinePrimitives);
+        let positions = outlineGeometry.attributes.position.values;
+
+        var p0 = Cesium.Cartesian3.fromArray(positions, 0);
+        var p1 = Cesium.Cartesian3.fromArray(positions, 3);
+
+        var p2 = Cesium.Cartesian3.fromArray(positions, 6);
+        var p3 = Cesium.Cartesian3.fromArray(positions, 9);
+        var p4 = Cesium.Cartesian3.fromArray(positions, 12);
+        var p5 = Cesium.Cartesian3.fromArray(positions, 15);
+        var p6 = Cesium.Cartesian3.fromArray(positions, 18);
+        var p7 = Cesium.Cartesian3.fromArray(positions, 21);
+
+        ray1 = getRayByTwoPoint(p0, p4);
+        ray2 = getRayByTwoPoint(p1, p5);
+        ray3 = getRayByTwoPoint(p2, p6);
+        ray4 = getRayByTwoPoint(p4, p7);
+
+        setTimeout(() => {
+          const obj = viewer.scene.pickFromRay(ray1);
+          console.log("obj", obj);
+          console.log("p0", p0);
+          console.log("p1", p1);
+          drawPoint([p0, p4, obj.position]);
+        }, 2000);
+        // drawPoint([p0,p1,p2,p3,p4,p5,p6,p7])
+      }
+
+      function drawPoint(pos) {
+        pos.forEach((v) => {
+          console.log("v", v);
+          let a = viewer.entities.add({
+            name: "Citizens Bank Park",
+            position: v,
+            point: {
+              pixelSize: 100,
+              color: Cesium.Color.RED,
+              outlineColor: Cesium.Color.WHITE,
+              outlineWidth: 2,
+              disableDepthTestDistance: 5000000,
+            },
+          });
+          viewer.flyTo(a);
+        });
+      }
+
+      function getRayByTwoPoint(positionA, positionB) {
+        let result = new Cesium.Cartesian3();
+        let direction = Cesium.Cartesian3.normalize(
+          Cesium.Cartesian3.subtract(positionB, positionA, result),
+          result
+        );
+        return new Cesium.Ray(positionA, direction);
+      }
+    </script>
+  </body>
+</html>
